@@ -148,7 +148,7 @@ export default function CreateStrategy() {
         {showSuccess && (
           <ShineBorder
             className="bg-primary/10 border-primary p-6"
-            color={["#3b82f6", "#8b5cf6", "#06b6d4"]}
+            shineColor={["#3b82f6", "#8b5cf6", "#06b6d4"]}
           >
             <div className="flex items-center gap-3 text-primary">
               <CheckCircle2 className="h-6 w-6" />
@@ -195,7 +195,7 @@ export default function CreateStrategy() {
         {/* Start State Rules */}
         <ShineBorder
           className="relative"
-          color={["#3b82f6", "#06b6d4"]}
+          shineColor={["#3b82f6", "#06b6d4"]}
           borderWidth={2}
         >
           <Card className="border-0">
@@ -277,7 +277,7 @@ export default function CreateStrategy() {
         {/* End State Rules */}
         <ShineBorder
           className="relative"
-          color={["#8b5cf6", "#ec4899"]}
+          shineColor={["#8b5cf6", "#ec4899"]}
           borderWidth={2}
         >
           <Card className="border-0">
