@@ -1,6 +1,6 @@
 "use client";
 
-import { Rule, OperatorType, PropertyType } from "@/lib/cohort-types";
+import { Rule, OperatorType } from "@/lib/cohort-types";
 import { COHORT_PROPERTIES, OPERATOR_LABELS, getPropertyDefinition, getAvailableOperators } from "@/lib/cohort-properties";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
 
 interface RuleRowProps {
   rule: Rule;
-  onUpdate: (field: keyof Rule, value: any) => void;
+  onUpdate: (field: keyof Rule, value: string | number | string[] | boolean | null) => void;
   onRemove: () => void;
   canRemove: boolean;
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { RuleGroup as RuleGroupType, Rule, LogicalOperator } from "@/lib/cohort-types";
 import { RuleRow } from "./rule-row";
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,7 @@ export function RuleGroup({ group, onUpdate, onRemove, canRemove = false, depth 
   };
 
   // Update a specific rule
-  const updateRule = (ruleId: string, field: keyof Rule, value: any) => {
+  const updateRule = (ruleId: string, field: keyof Rule, value: string | number | string[] | boolean | null) => {
     onUpdate({
       ...group,
       rules: group.rules.map((r) =>
@@ -88,7 +87,6 @@ export function RuleGroup({ group, onUpdate, onRemove, canRemove = false, depth 
     });
   };
 
-  const hasContent = group.rules.length > 0 || group.groups.length > 0;
   const canRemoveRule = group.rules.length > 1;
 
   return (
