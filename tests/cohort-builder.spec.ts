@@ -13,8 +13,8 @@ test.describe('Cohort Builder', () => {
 
     // Check main sections
     await expect(page.locator('text=Strategy Details')).toBeVisible();
-    await expect(page.locator('text=Start Audience')).toBeVisible();
-    await expect(page.locator('text=End Audience')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Start Audience' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'End Audience' })).toBeVisible();
     await expect(page.locator('text=Transformation Timeline')).toBeVisible();
     await expect(page.locator('text=Audience Preview & Estimates')).toBeVisible();
   });
@@ -31,25 +31,29 @@ test.describe('Cohort Builder', () => {
   });
 
   test('should add and configure start audience rules', async ({ page }) => {
-    // Find the first Start Audience rule row
-    const startSection = page.locator('text=Start Audience').locator('..').locator('..');
+    // Find the Start Audience section by heading
+    const startHeading = page.getByRole('heading', { name: 'Start Audience' });
+    const startSection = page.locator('.space-y-4', { has: startHeading }).first();
 
-    // Select property
-    await startSection.getByRole('combobox').first().click();
+    // Wait for the rule group to be visible
+    await expect(startSection.locator('[class*="border-l-4"]').first()).toBeVisible();
+
+    // Select property - use a more specific selector within the card
+    const firstCard = startSection.locator('[class*="border-l-4"]').first();
+    await firstCard.getByRole('combobox').first().click();
     await page.getByRole('option', { name: 'Channel Preference' }).click();
 
     // Select operator
-    await startSection.getByRole('combobox').nth(1).click();
+    await firstCard.getByRole('combobox').nth(1).click();
     await page.getByRole('option', { name: 'equals' }).click();
 
     // Select value
-    await startSection.getByRole('combobox').nth(2).click();
+    await firstCard.getByRole('combobox').nth(2).click();
     await page.getByRole('option', { name: 'Offline' }).click();
 
     // Verify selections
-    await expect(startSection.getByText('Channel Preference')).toBeVisible();
-    await expect(startSection.getByText('equals')).toBeVisible();
-    await expect(startSection.getByText('Offline')).toBeVisible();
+    await expect(firstCard.getByText('Channel Preference')).toBeVisible();
+    await expect(firstCard.getByText('Offline')).toBeVisible();
   });
 
   test('should add additional rules to a group', async ({ page }) => {

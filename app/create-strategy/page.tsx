@@ -216,15 +216,15 @@ export default function CreateStrategy() {
               Define rules to identify customers in their current state
             </p>
           </div>
-          <ShineBorder
-            className="relative"
-            shineColor={["#3b82f6", "#06b6d4"]}
-            borderWidth={2}
-          >
-            <div className="p-1">
+          <div className="relative rounded-lg">
+            <ShineBorder
+              shineColor={["#3b82f6", "#06b6d4"]}
+              borderWidth={2}
+            />
+            <div className="relative z-10">
               <RuleGroup group={startAudience} onUpdate={setStartAudience} />
             </div>
-          </ShineBorder>
+          </div>
         </div>
 
         {/* End Audience Cohort Builder */}
@@ -238,15 +238,15 @@ export default function CreateStrategy() {
               Define rules for the target state you want customers to reach
             </p>
           </div>
-          <ShineBorder
-            className="relative"
-            shineColor={["#8b5cf6", "#ec4899"]}
-            borderWidth={2}
-          >
-            <div className="p-1">
+          <div className="relative rounded-lg">
+            <ShineBorder
+              shineColor={["#8b5cf6", "#ec4899"]}
+              borderWidth={2}
+            />
+            <div className="relative z-10">
               <RuleGroup group={endAudience} onUpdate={setEndAudience} />
             </div>
-          </ShineBorder>
+          </div>
         </div>
 
         {/* Timeline Selector */}
