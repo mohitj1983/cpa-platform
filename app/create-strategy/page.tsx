@@ -368,10 +368,10 @@ export default function CreateStrategy() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {journeySteps.map((step, index) => (
+            {journeySteps.map((step, stepIndex) => (
               <div key={step.id} className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline">Step {index + 1}</Badge>
+                  <Badge variant="outline">Step {stepIndex + 1}</Badge>
                   <Button
                     variant="ghost"
                     size="icon"

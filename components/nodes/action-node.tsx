@@ -17,7 +17,7 @@ interface ActionNodeProps {
   };
 }
 
-const channelIcons: Record<string, any> = {
+const channelIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   SMS: MessageSquare,
   Email: Mail,
   "Push Notification": Bell,

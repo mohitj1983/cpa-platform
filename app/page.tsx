@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { mockTransformations } from "@/lib/mock-data";
 import Link from "next/link";
-import { TrendingUp, Users, Target, Clock, Sparkles, ArrowRight, Wand2, Plus } from "lucide-react";
+import { TrendingUp, Users, Target, Clock, Sparkles, ArrowRight, Wand2 } from "lucide-react";
 import AnimatedNumber from "@/components/ui/animated-number";
 import AnimatedGradientText from "@/components/ui/animated-gradient-text";
 

@@ -36,7 +36,7 @@ export interface JourneyEdge {
   label?: string;
   type?: string;
   animated?: boolean;
-  style?: Record<string, any>;
+  style?: Record<string, string | number>;
 }
 
 export interface TransformationDetail extends Transformation {

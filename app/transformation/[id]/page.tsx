@@ -115,7 +115,7 @@ export default function TransformationDetail({ params }: { params: { id: string 
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">What We've Learned</h3>
+                  <h3 className="text-lg font-semibold">What We&apos;ve Learned</h3>
                   <p className="text-muted-foreground">{transformation.why.causalImpact}</p>
                 </div>
 

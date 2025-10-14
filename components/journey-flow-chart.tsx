@@ -26,7 +26,7 @@ const nodeTypes = {
 };
 
 export function JourneyFlowChart({ nodes, edges }: JourneyFlowChartProps) {
-  const onInit = useCallback((reactFlowInstance: any) => {
+  const onInit = useCallback((reactFlowInstance: { fitView: (options: { padding: number }) => void }) => {
     // Fit view on initial load
     setTimeout(() => {
       reactFlowInstance.fitView({ padding: 0.2 });
@@ -75,7 +75,8 @@ export function JourneyFlowChart({ nodes, edges }: JourneyFlowChartProps) {
               if (node.type === "start") return "hsl(var(--primary))";
               if (node.type === "end") return "hsl(var(--primary))";
               // Check if it's path A or B based on node data
-              const isPathA = (node.data as any)?.pathName?.includes("Tech-Savvy");
+              const nodeData = node.data as { pathName?: string };
+              const isPathA = nodeData?.pathName?.includes("Tech-Savvy");
               return isPathA ? "#3b82f6" : "#8b5cf6";
             }}
           />
