@@ -1,19 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { Particles } from "@/components/ui/particles";
+import { RuleGroup } from "@/components/cohort-builder/rule-group";
+import { TimelineSelector } from "@/components/cohort-builder/timeline-selector";
+import { CohortPreview } from "@/components/cohort-builder/cohort-preview";
+import {
+  RuleGroup as RuleGroupType,
+  Timeline,
+  CohortDefinition,
+  CohortPreview as CohortPreviewType,
+} from "@/lib/cohort-types";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Plus,
-  Trash2,
   Sparkles,
   Target,
   TrendingUp,
@@ -21,66 +27,100 @@ import {
   CheckCircle2
 } from "lucide-react";
 
-interface Rule {
-  id: string;
-  field: string;
-  operator: string;
-  value: string;
-}
-
 export default function CreateStrategy() {
   const [strategyName, setStrategyName] = useState("");
   const [description, setDescription] = useState("");
-  const [startStateRules, setStartStateRules] = useState<Rule[]>([
-    { id: "1", field: "", operator: "", value: "" }
-  ]);
-  const [endStateRules, setEndStateRules] = useState<Rule[]>([
-    { id: "1", field: "", operator: "", value: "" }
-  ]);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const fields = [
-    "Purchase Frequency",
-    "Average Order Value",
-    "Channel Preference",
-    "Product Category",
-    "Loyalty Status",
-    "Engagement Score",
-    "Last Purchase Date",
-    "Customer Tenure"
-  ];
+  // Initialize cohort builder state
+  const [startAudience, setStartAudience] = useState<RuleGroupType>({
+    id: "start-root",
+    operator: "AND",
+    rules: [
+      {
+        id: `rule-${Date.now()}`,
+        property: "",
+        operator: "equals",
+        value: null,
+        propertyType: "user",
+      },
+    ],
+    groups: [],
+  });
 
-  const operators = ["equals", "greater than", "less than", "contains", "not equals"];
+  const [endAudience, setEndAudience] = useState<RuleGroupType>({
+    id: "end-root",
+    operator: "AND",
+    rules: [
+      {
+        id: `rule-${Date.now() + 1}`,
+        property: "",
+        operator: "equals",
+        value: null,
+        propertyType: "user",
+      },
+    ],
+    groups: [],
+  });
 
-  const addRule = (type: "start" | "end") => {
-    const newRule = { id: Date.now().toString(), field: "", operator: "", value: "" };
-    if (type === "start") {
-      setStartStateRules([...startStateRules, newRule]);
-    } else {
-      setEndStateRules([...endStateRules, newRule]);
-    }
-  };
+  const [timeline, setTimeline] = useState<Timeline>({
+    duration: 3,
+    unit: "months",
+  });
 
-  const removeRule = (type: "start" | "end", id: string) => {
-    if (type === "start") {
-      setStartStateRules(startStateRules.filter(r => r.id !== id));
-    } else {
-      setEndStateRules(endStateRules.filter(r => r.id !== id));
-    }
-  };
+  const [preview, setPreview] = useState<CohortPreviewType>({
+    startAudienceCount: 0,
+    endAudienceCount: 0,
+    estimatedConversionRate: 0,
+    estimatedValue: 0,
+  });
 
-  const updateRule = (type: "start" | "end", id: string, field: keyof Rule, value: string) => {
-    const updateRules = (rules: Rule[]) =>
-      rules.map(r => r.id === id ? { ...r, [field]: value } : r);
+  // Mock preview calculation - in real app, this would call an API
+  useEffect(() => {
+    const calculatePreview = () => {
+      // Check if start audience has any valid rules
+      const hasValidStartRules = startAudience.rules.some(r => r.property && r.operator);
+      const hasValidEndRules = endAudience.rules.some(r => r.property && r.operator);
 
-    if (type === "start") {
-      setStartStateRules(updateRules(startStateRules));
-    } else {
-      setEndStateRules(updateRules(endStateRules));
-    }
-  };
+      if (!hasValidStartRules) {
+        setPreview({
+          startAudienceCount: 0,
+          endAudienceCount: 0,
+          estimatedConversionRate: 0,
+          estimatedValue: 0,
+        });
+        return;
+      }
+
+      // Mock calculation based on rules complexity
+      const startCount = 25000 + Math.random() * 50000;
+      const conversionRate = hasValidEndRules ? 15 + Math.random() * 20 : 0;
+      const value = (startCount * conversionRate * 1200) / 100;
+
+      setPreview({
+        startAudienceCount: Math.round(startCount),
+        endAudienceCount: Math.round((startCount * conversionRate) / 100),
+        estimatedConversionRate: Math.round(conversionRate),
+        estimatedValue: Math.round(value),
+      });
+    };
+
+    const timeoutId = setTimeout(calculatePreview, 500);
+    return () => clearTimeout(timeoutId);
+  }, [startAudience, endAudience, timeline]);
 
   const handleCreateStrategy = () => {
+    const cohortDefinition: CohortDefinition = {
+      name: strategyName,
+      description,
+      startAudience,
+      endAudience,
+      timeline,
+    };
+
+    // In production, save to backend
+    console.log("Creating strategy:", cohortDefinition);
+
     setShowSuccess(true);
     setTimeout(() => {
       window.location.href = "/";
@@ -165,169 +205,59 @@ export default function CreateStrategy() {
           </CardContent>
         </Card>
 
-        {/* Start State Rules */}
-        <ShineBorder
-          className="relative"
-          shineColor={["#3b82f6", "#06b6d4"]}
-          borderWidth={2}
-        >
-          <Card className="border-0">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-500" />
-                Start State (Current Customer Behavior)
-              </CardTitle>
-              <CardDescription>
-                Define rules to identify customers in their current state
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {startStateRules.map((rule, index) => (
-                <div key={rule.id} className="flex gap-2 items-end">
-                  <div className="flex-1 space-y-2">
-                    <Label>Customer Attribute</Label>
-                    <Select
-                      value={rule.field}
-                      onValueChange={(value) => updateRule("start", rule.id, "field", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select attribute" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fields.map(field => (
-                          <SelectItem key={field} value={field}>{field}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Label>Condition</Label>
-                    <Select
-                      value={rule.operator}
-                      onValueChange={(value) => updateRule("start", rule.id, "operator", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {operators.map(op => (
-                          <SelectItem key={op} value={op}>{op}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Label>Value</Label>
-                    <Input
-                      placeholder="Enter value"
-                      value={rule.value}
-                      onChange={(e) => updateRule("start", rule.id, "value", e.target.value)}
-                    />
-                  </div>
-                  {startStateRules.length > 1 && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeRule("start", rule.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                variant="outline"
-                onClick={() => addRule("start")}
-                className="w-full"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Condition (AND)
-              </Button>
-            </CardContent>
-          </Card>
-        </ShineBorder>
+        {/* Start Audience Cohort Builder */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-semibold flex items-center gap-2 mb-2">
+              <Target className="h-6 w-6 text-blue-500" />
+              Start Audience
+            </h2>
+            <p className="text-muted-foreground">
+              Define rules to identify customers in their current state
+            </p>
+          </div>
+          <ShineBorder
+            className="relative"
+            shineColor={["#3b82f6", "#06b6d4"]}
+            borderWidth={2}
+          >
+            <div className="p-1">
+              <RuleGroup group={startAudience} onUpdate={setStartAudience} />
+            </div>
+          </ShineBorder>
+        </div>
 
-        {/* End State Rules */}
-        <ShineBorder
-          className="relative"
-          shineColor={["#8b5cf6", "#ec4899"]}
-          borderWidth={2}
-        >
-          <Card className="border-0">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-purple-500" />
-                End State (Desired Customer Behavior)
-              </CardTitle>
-              <CardDescription>
-                Define rules for the target state you want customers to reach
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {endStateRules.map((rule) => (
-                <div key={rule.id} className="flex gap-2 items-end">
-                  <div className="flex-1 space-y-2">
-                    <Label>Customer Attribute</Label>
-                    <Select
-                      value={rule.field}
-                      onValueChange={(value) => updateRule("end", rule.id, "field", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select attribute" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fields.map(field => (
-                          <SelectItem key={field} value={field}>{field}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Label>Condition</Label>
-                    <Select
-                      value={rule.operator}
-                      onValueChange={(value) => updateRule("end", rule.id, "operator", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {operators.map(op => (
-                          <SelectItem key={op} value={op}>{op}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Label>Value</Label>
-                    <Input
-                      placeholder="Enter value"
-                      value={rule.value}
-                      onChange={(e) => updateRule("end", rule.id, "value", e.target.value)}
-                    />
-                  </div>
-                  {endStateRules.length > 1 && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeRule("end", rule.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                variant="outline"
-                onClick={() => addRule("end")}
-                className="w-full"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Condition (AND)
-              </Button>
-            </CardContent>
-          </Card>
-        </ShineBorder>
+        {/* End Audience Cohort Builder */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-semibold flex items-center gap-2 mb-2">
+              <TrendingUp className="h-6 w-6 text-purple-500" />
+              End Audience
+            </h2>
+            <p className="text-muted-foreground">
+              Define rules for the target state you want customers to reach
+            </p>
+          </div>
+          <ShineBorder
+            className="relative"
+            shineColor={["#8b5cf6", "#ec4899"]}
+            borderWidth={2}
+          >
+            <div className="p-1">
+              <RuleGroup group={endAudience} onUpdate={setEndAudience} />
+            </div>
+          </ShineBorder>
+        </div>
+
+        {/* Timeline Selector */}
+        <Card>
+          <CardContent className="p-6">
+            <TimelineSelector timeline={timeline} onUpdate={setTimeline} />
+          </CardContent>
+        </Card>
+
+        {/* Cohort Preview */}
+        <CohortPreview preview={preview} />
 
         {/* AI Journey Generation Info */}
         <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-2 border-dashed">
