@@ -17,7 +17,6 @@ import {
   Trash2,
   Sparkles,
   Target,
-  Users,
   TrendingUp,
   Wand2,
   CheckCircle2
@@ -30,14 +29,6 @@ interface Rule {
   value: string;
 }
 
-interface JourneyStep {
-  id: string;
-  name: string;
-  channel: string;
-  timing: string;
-  action: string;
-}
-
 export default function CreateStrategy() {
   const [strategyName, setStrategyName] = useState("");
   const [description, setDescription] = useState("");
@@ -47,7 +38,6 @@ export default function CreateStrategy() {
   const [endStateRules, setEndStateRules] = useState<Rule[]>([
     { id: "1", field: "", operator: "", value: "" }
   ]);
-  const [journeySteps, setJourneySteps] = useState<JourneyStep[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const fields = [
@@ -62,7 +52,6 @@ export default function CreateStrategy() {
   ];
 
   const operators = ["equals", "greater than", "less than", "contains", "not equals"];
-  const channels = ["SMS", "Email", "Push Notification", "In-App", "In-Store"];
 
   const addRule = (type: "start" | "end") => {
     const newRule = { id: Date.now().toString(), field: "", operator: "", value: "" };
@@ -90,21 +79,6 @@ export default function CreateStrategy() {
     } else {
       setEndStateRules(updateRules(endStateRules));
     }
-  };
-
-  const addJourneyStep = () => {
-    setJourneySteps([
-      ...journeySteps,
-      { id: Date.now().toString(), name: "", channel: "", timing: "", action: "" }
-    ]);
-  };
-
-  const removeJourneyStep = (id: string) => {
-    setJourneySteps(journeySteps.filter(s => s.id !== id));
-  };
-
-  const updateJourneyStep = (id: string, field: keyof JourneyStep, value: string) => {
-    setJourneySteps(journeySteps.map(s => s.id === id ? { ...s, [field]: value } : s));
   };
 
   const handleCreateStrategy = () => {
@@ -356,82 +330,40 @@ export default function CreateStrategy() {
           </Card>
         </ShineBorder>
 
-        {/* Journey Steps (Optional) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Customer Journey (Optional)
-            </CardTitle>
-            <CardDescription>
-              Define the steps customers will follow. Leave empty for AI to auto-generate.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {journeySteps.map((step, stepIndex) => (
-              <div key={step.id} className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Badge variant="outline">Step {stepIndex + 1}</Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeJourneyStep(step.id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label>Step Name</Label>
-                    <Input
-                      placeholder="e.g., Welcome Email"
-                      value={step.name}
-                      onChange={(e) => updateJourneyStep(step.id, "name", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Channel</Label>
-                    <Select
-                      value={step.channel}
-                      onValueChange={(value) => updateJourneyStep(step.id, "channel", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select channel" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {channels.map(channel => (
-                          <SelectItem key={channel} value={channel}>{channel}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Timing</Label>
-                    <Input
-                      placeholder="e.g., Day 0, 2 hours after"
-                      value={step.timing}
-                      onChange={(e) => updateJourneyStep(step.id, "timing", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2 col-span-2">
-                    <Label>Action</Label>
-                    <Input
-                      placeholder="e.g., Send personalized recommendations"
-                      value={step.action}
-                      onChange={(e) => updateJourneyStep(step.id, "action", e.target.value)}
-                    />
-                  </div>
-                </div>
+        {/* AI Journey Generation Info */}
+        <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-2 border-dashed">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-primary/10 p-3 rounded-full">
+                <Sparkles className="h-6 w-6 text-primary" />
               </div>
-            ))}
-            <Button
-              variant="outline"
-              onClick={addJourneyStep}
-              className="w-full"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Journey Step
-            </Button>
+              <div className="space-y-2 flex-1">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  AI-Powered Journey Generation
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Once you create this strategy, our AI will automatically analyze your start and end states to generate an optimized customer journey with:
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1 mt-3 ml-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    Multiple personalized paths based on customer behavior
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    Optimal channel selection (SMS, Email, Push, In-App)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    Timing recommendations for each touchpoint
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    Predicted success rates and customer flow
+                  </li>
+                </ul>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
