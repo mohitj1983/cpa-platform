@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { RuleGroup as RuleGroupType, Rule, LogicalOperator } from "@/lib/cohort-types";
 import { RuleRow } from "./rule-row";
 import { Button } from "@/components/ui/button";
@@ -34,15 +35,15 @@ export function RuleGroup({ group, onUpdate, onRemove, canRemove = false, depth 
     onUpdate({ ...group, rules: [...group.rules, newRule] });
   };
 
-  // Update a specific rule
-  const updateRule = (ruleId: string, field: keyof Rule, value: string | number | string[] | boolean | null) => {
+  // Update a specific rule (memoized to prevent re-renders)
+  const updateRule = useCallback((ruleId: string, field: keyof Rule, value: string | number | string[] | boolean | null) => {
     onUpdate({
       ...group,
       rules: group.rules.map((r) =>
         r.id === ruleId ? { ...r, [field]: value } : r
       ),
     });
-  };
+  }, [group, onUpdate]);
 
   // Remove a rule
   const removeRule = (ruleId: string) => {
@@ -125,15 +126,25 @@ export function RuleGroup({ group, onUpdate, onRemove, canRemove = false, depth 
 
         {/* Rules */}
         <div className="space-y-3">
-          {group.rules.map((rule) => (
-            <RuleRow
-              key={rule.id}
-              rule={rule}
-              onUpdate={(field, value) => updateRule(rule.id, field, value)}
-              onRemove={() => removeRule(rule.id)}
-              canRemove={canRemoveRule}
-            />
-          ))}
+          {group.rules.map((rule) => {
+            // Create stable callbacks for this specific rule
+            const handleUpdate = (field: keyof Rule, value: string | number | string[] | boolean | null) => {
+              updateRule(rule.id, field, value);
+            };
+            const handleRemove = () => {
+              removeRule(rule.id);
+            };
+
+            return (
+              <RuleRow
+                key={rule.id}
+                rule={rule}
+                onUpdate={handleUpdate}
+                onRemove={handleRemove}
+                canRemove={canRemoveRule}
+              />
+            );
+          })}
         </div>
 
         {/* Nested Groups */}

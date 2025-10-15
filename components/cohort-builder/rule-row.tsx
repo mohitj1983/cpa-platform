@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useMemo, memo } from "react";
 import { Rule, OperatorType } from "@/lib/cohort-types";
 import { COHORT_PROPERTIES, OPERATOR_LABELS, getPropertyDefinition, getAvailableOperators } from "@/lib/cohort-properties";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,23 +17,23 @@ interface RuleRowProps {
   canRemove: boolean;
 }
 
-export function RuleRow({ rule, onUpdate, onRemove, canRemove }: RuleRowProps) {
+function RuleRowComponent({ rule, onUpdate, onRemove, canRemove }: RuleRowProps) {
   const property = getPropertyDefinition(rule.property);
   const operators = getAvailableOperators(rule.property);
 
-  // Group properties by type for better UX
-  const userProperties = COHORT_PROPERTIES.filter(p => p.type === "user");
-  const behavioralProperties = COHORT_PROPERTIES.filter(p => p.type === "behavioral");
-  const transactionalProperties = COHORT_PROPERTIES.filter(p => p.type === "transactional");
+  // Group properties by type for better UX (memoized to avoid recreation)
+  const userProperties = useMemo(() => COHORT_PROPERTIES.filter(p => p.type === "user"), []);
+  const behavioralProperties = useMemo(() => COHORT_PROPERTIES.filter(p => p.type === "behavioral"), []);
+  const transactionalProperties = useMemo(() => COHORT_PROPERTIES.filter(p => p.type === "transactional"), []);
 
   // Handle property change - reset operator and value
-  const handlePropertyChange = (propertyKey: string) => {
+  const handlePropertyChange = useCallback((propertyKey: string) => {
     const newProperty = getPropertyDefinition(propertyKey);
     onUpdate("property", propertyKey);
     onUpdate("propertyType", newProperty?.type || "user");
     onUpdate("operator", "");
     onUpdate("value", null);
-  };
+  }, [onUpdate]);
 
   // Render value input based on property type
   const renderValueInput = () => {
@@ -176,24 +177,7 @@ export function RuleRow({ rule, onUpdate, onRemove, canRemove }: RuleRowProps) {
             <SelectValue placeholder="Select property" />
           </SelectTrigger>
           <SelectContent>
-            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">User Properties</div>
-            {userProperties.map((prop) => (
-              <SelectItem key={prop.key} value={prop.key}>
-                {prop.label}
-              </SelectItem>
-            ))}
-            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-1 pt-2">
-              Behavioral Properties
-            </div>
-            {behavioralProperties.map((prop) => (
-              <SelectItem key={prop.key} value={prop.key}>
-                {prop.label}
-              </SelectItem>
-            ))}
-            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-1 pt-2">
-              Transactional Properties
-            </div>
-            {transactionalProperties.map((prop) => (
+            {COHORT_PROPERTIES.map((prop) => (
               <SelectItem key={prop.key} value={prop.key}>
                 {prop.label}
               </SelectItem>
@@ -243,3 +227,12 @@ export function RuleRow({ rule, onUpdate, onRemove, canRemove }: RuleRowProps) {
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders when parent updates
+export const RuleRow = memo(RuleRowComponent, (prevProps, nextProps) => {
+  // Only re-render if the rule object or canRemove flag actually changed
+  return (
+    prevProps.rule === nextProps.rule &&
+    prevProps.canRemove === nextProps.canRemove
+  );
+});
