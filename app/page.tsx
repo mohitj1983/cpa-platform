@@ -96,10 +96,10 @@ export default function Dashboard() {
         {topRecommendation && (
           <Card className="border-primary/50 bg-primary/5">
             <CardHeader>
-              <div className="flex items-center gap-2 flex-wrap">
-                <Sparkles className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary flex-shrink-0" />
                 <CardTitle className="text-xl">Recommended Next Action</CardTitle>
-                <AnimatedGradientText>
+                <AnimatedGradientText className="ml-auto">
                   ✨ AI-Powered
                 </AnimatedGradientText>
               </div>
@@ -108,7 +108,7 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+              <div className="flex flex-col md:flex-row gap-6 items-stretch md:items-center justify-between">
                 <div className="space-y-3 flex-1">
                   <div>
                     <h3 className="text-2xl font-bold text-primary mb-1">
@@ -147,12 +147,14 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <Link href={`/transformation/${topRecommendation.id}`}>
-                  <Button size="lg" className="bg-primary w-full md:w-auto">
-                    Explore Strategy
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <div className="flex items-center">
+                  <Link href={`/transformation/${topRecommendation.id}`}>
+                    <Button size="lg" className="bg-primary w-full md:w-auto">
+                      Explore Strategy
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -167,7 +169,7 @@ export default function Dashboard() {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {mockTransformations.map((transformation, index) => (
-              <Card key={transformation.id} className="hover:shadow-lg transition-shadow">
+              <Card key={transformation.id} className="hover:shadow-lg transition-shadow flex flex-col">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
@@ -184,8 +186,8 @@ export default function Dashboard() {
                     {transformation.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
+                <CardContent className="flex flex-col flex-1">
+                  <div className="space-y-2 flex-1">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Opportunity Value</span>
                       <span className="font-semibold">₹{(transformation.value / 10000000).toFixed(1)}Cr</span>
@@ -208,11 +210,13 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <Link href={`/transformation/${transformation.id}`}>
-                    <Button className="w-full" variant="default">
-                      Explore Transformation
-                    </Button>
-                  </Link>
+                  <div className="mt-4">
+                    <Link href={`/transformation/${transformation.id}`}>
+                      <Button className="w-full" variant="default">
+                        Explore Transformation
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             ))}
